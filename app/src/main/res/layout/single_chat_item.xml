@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/mainChat"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="2dp"
+    android:layout_marginEnd="8dp"
+    android:layout_marginStart="8dp"
+    android:layout_marginTop="2dp"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/schat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/chat_bg"
+        android:maxWidth="300dp"
+        android:padding="8dp"
+        android:textColor="@color/white"
+        android:textSize="16sp" />
+</LinearLayout>

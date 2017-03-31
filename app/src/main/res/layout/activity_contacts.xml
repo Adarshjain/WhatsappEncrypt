@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:background="@color/bg"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include
+        android:id="@+id/appBar"
+        layout="@layout/app_bar" />
+
+    <ListView
+        android:id="@+id/all_list"
+        android:layout_width="match_parent"
+        android:divider="#ABA8FF"
+        android:dividerHeight="1dp"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true" />
+</LinearLayout>

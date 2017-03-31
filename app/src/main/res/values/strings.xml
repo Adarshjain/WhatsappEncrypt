@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Whatsapp Encrypt</string>
+    <string name="title_activity_conversation">Conversation</string>
+</resources>
