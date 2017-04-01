@@ -67,26 +67,17 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public void addIndex(Message message) {
         if (message.getName().contains("@") || message.getName().contains(":")) {
-            Log.e("DI", "01");
             return;
         }
-        Log.e("DI", "02");
         SQLiteDatabase db = this.getWritableDatabase();
 
-        Log.e("DI", "03");
         ContentValues values = new ContentValues();
-        Log.e("DI", "04");
         values.put(KEY_NAME, message.getName());
-        Log.e("DI", "05");
         values.put(KEY_CHAT, message.getChat());
-        Log.e("DI", "06");
         values.put(KEY_NUMBER, message.getNumber());
-        Log.e("DI", "07");
 
         db.insert(INDEX_TABLE_NAME, null, values);
-        Log.e("DI", "08");
         db.close();
-        Log.e("DI", "09");
     }
 
     public List<Message> getAllIndex() {
@@ -94,42 +85,27 @@ public class DBHelper extends SQLiteOpenHelper {
         String selectQuery = "SELECT * FROM " + INDEX_TABLE_NAME;
 
         SQLiteDatabase db = this.getWritableDatabase();
-        Log.e("AI", "01");
         Cursor cursor = db.rawQuery(selectQuery, null);
-        Log.e("AI", "02");
 
         if (cursor.moveToFirst()) {
-            Log.e("AI", "03");
             do {
-                Log.e("AI", "04");
                 Message contact = new Message("", cursor.getString(1), cursor.getString(2), "", cursor.getString(3));
-                Log.e("AI", "05");
                 indexList.add(contact);
-                Log.e("AI", "06");
             } while (cursor.moveToNext());
-            Log.e("AI", "07");
         }
-        Log.e("AI", "08");
         cursor.close();
-        Log.e("AI", "09");
         return indexList;
     }
 
     public void deleteIndexIfExists(String Name) {
         SQLiteDatabase db = this.getReadableDatabase();
 
-        Log.e("db","01");
         Cursor cursor = db.query(INDEX_TABLE_NAME, new String[]{KEY_ID, KEY_NAME}, KEY_NAME + "=?",
                 new String[]{Name}, null, null, null, null);
-        Log.e("db", "02");
         if (cursor.moveToFirst() && cursor.getCount() > 0) {
-            Log.e("db", "03");
             db.execSQL("delete from " + INDEX_TABLE_NAME + " where " + KEY_NAME + "='" + cursor.getString(1) + "'");
-            Log.e("db", "04");
         }
-        Log.e("db", "05");
         cursor.close();
-        Log.e("db", "06");
     }
 
     public List<Message> getAllChats(String name) {

@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
@@ -133,7 +134,7 @@ public class PasswordActivity extends AppCompatActivity {
                     return;
                 } else {
                     if (!getNotified()) {
-                        Toast.makeText(getApplicationContext(), "Please grant Notification Access", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), "Please grant Notification Access", Toast.LENGTH_SHORT).show();
                         startActivity(new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"));
                         return;
                     }
@@ -169,8 +170,7 @@ public class PasswordActivity extends AppCompatActivity {
     public boolean getNotified() {
         ComponentName cn = new ComponentName(getApplicationContext(), MyService.class);
         String flat = Settings.Secure.getString(getApplicationContext().getContentResolver(), "enabled_notification_listeners");
-        final boolean enabled = flat != null && flat.contains(cn.flattenToString());
-        return enabled;
+        return flat != null && flat.contains(cn.flattenToString());
     }
 
     @Override
@@ -189,7 +189,7 @@ public class PasswordActivity extends AppCompatActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+                                           @NonNull String permissions[], @NonNull int[] grantResults) {
         switch (requestCode) {
             case 1: {
                 if (grantResults.length > 0

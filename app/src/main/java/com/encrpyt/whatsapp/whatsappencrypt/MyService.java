@@ -10,6 +10,7 @@ import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
+import com.encrpyt.whatsapp.whatsappencrypt.Adapter.IndexAdapter;
 import com.mobapphome.mahencryptorlib.MAHEncryptor;
 
 import java.text.SimpleDateFormat;
@@ -27,27 +28,40 @@ public class MyService extends NotificationListenerService {
         if (pack.equals("com.whatsapp")) {
             String ticker = (sbn.getNotification().tickerText != null) ? sbn.getNotification().tickerText.toString() : "";
             Bundle extras = sbn.getNotification().extras;
-            String title = extras.getString("android.title");
-            String text = (extras.getCharSequence("android.text") != null) ? "" + extras.getCharSequence("android.text") : "";
-            if (!(title.contains("(") && title.contains("messages") && title.contains(")"))) {
+            String Name = extras.getString("android.text");
+            String Chat = (extras.getCharSequence("android.text") != null) ? "" + extras.getCharSequence("android.text") : "";
+            if (!(Name.contains("(") && Name.contains("messages") && Name.contains(")"))) {
                 if (ticker.contains("Message from")) {
-                    title = ticker.substring(13);
-                }
-                if (title.charAt(title.length() - 3) == ':') {
-                    title = title.substring(0, title.length() - 3);
+                    Chat = Name;
+                    Name = ticker.substring(13);
                 }
                 try {
                     MAHEncryptor mahEncryptor = MAHEncryptor.newInstance("This is sample SecretKeyPhrase");
-                    mahEncryptor.decode(text);
+                    mahEncryptor.decode(Chat);
+                } catch (Exception e) {
+                    return;
+                }
+                try {
+                    MAHEncryptor mahEncryptor = MAHEncryptor.newInstance("This is sample SecretKeyPhrase");
+                    mahEncryptor.decode(Name);
+                    return;
+                } catch (Exception ignored) {
+                }
+                if (Name.charAt(Name.length() - 3) == ':') {
+                    Name = Name.substring(0, Name.length() - 3);
+                }
+                try {
+                    MAHEncryptor mahEncryptor = MAHEncryptor.newInstance("This is sample SecretKeyPhrase");
+                    mahEncryptor.decode(Chat);
 
                     @SuppressLint("SimpleDateFormat")
                     String timeStamp = new SimpleDateFormat("dd.MM.yyyy HH.mm.ss").format(new Date());
-                    String number = getPhoneNumber(title, getApplicationContext());
-                    Message message = new Message(timeStamp, title, text, "l", number);
+                    String number = getPhoneNumber(Name, getApplicationContext());
+                    Message message = new Message(timeStamp, Name, Chat, "l", number);
                     addMessage(message, db);
                     addIndex(message, db);
                 } catch (Exception ignored) {
-                    Log.e("err", ignored.toString());
+                    Log.e("Service Err", ignored.toString());
                 }
             }
         }
@@ -65,16 +79,20 @@ public class MyService extends NotificationListenerService {
         db.deleteIndexIfExists(message.getName());
         db.addIndex(message);
 
+        IndexAdapter indexAdapter = new IndexAdapter(getApplicationContext());
+        indexAdapter.setIndex(db.getAllIndex());
+        indexAdapter.notifyDataSetChanged();
+
         Intent intent = new Intent();
         intent.setAction(INDEX);
         sendBroadcast(intent);
     }
 
-    public String getPhoneNumber(String name, Context context) {
+    public String getPhoneNumber(String name, Context conChat) {
         String ret = null;
         String selection = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " like'%" + name + "%'";
         String[] projection = new String[]{ContactsContract.CommonDataKinds.Phone.NUMBER};
-        Cursor c = context.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+        Cursor c = conChat.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
                 projection, selection, null, null);
         if (c.moveToFirst()) {
             ret = c.getString(0);

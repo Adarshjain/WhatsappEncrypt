@@ -1,8 +1,9 @@
 package com.encrpyt.whatsapp.whatsappencrypt;
 
-import android.content.ComponentName;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -15,6 +16,7 @@ import com.encrpyt.whatsapp.whatsappencrypt.Adapter.IndexAdapter;
 public class MainActivity extends AppCompatActivity {
 
     DBHelper db = new DBHelper(MainActivity.this);
+    MyReceiver myReceiver;
     private IndexAdapter indexAdapter;
 
     @Override
@@ -54,11 +56,30 @@ public class MainActivity extends AppCompatActivity {
         indexAdapter.notifyDataSetChanged();
     }
 
+
     @Override
     protected void onStart() {
+        super.onStart();
         Intent intent = new Intent(MainActivity.this,
                 MyService.class);
         startService(intent);
-        super.onStart();
+        myReceiver = new MyReceiver();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(MyService.INDEX);
+        registerReceiver(myReceiver, intentFilter);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unregisterReceiver(myReceiver);
+    }
+
+    private class MyReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context arg0, Intent arg1) {
+            if (indexAdapter != null)
+                indexAdapter.setIndex(db.getAllIndex());
+        }
     }
 }
