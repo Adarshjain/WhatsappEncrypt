@@ -61,6 +61,7 @@ public class Conversation extends AppCompatActivity implements View.OnClickListe
         if (Number.length() < 11)
             Number = "91" + Number;
 
+        db.clearCount(Number);
         Toolbar toolbar;
         toolbar = (Toolbar) findViewById(R.id.appBar);
         if (toolbar != null) {
@@ -78,7 +79,7 @@ public class Conversation extends AppCompatActivity implements View.OnClickListe
         chatsRecycler.setLayoutManager(mLayoutManager);
         chatAdapter = new ChatAdapter(getApplicationContext());
         chatsRecycler.setAdapter(chatAdapter);
-        chatAdapter.setMyMessages(db.getAllChats(Name));
+        chatAdapter.setMyMessages(db.getAllChats(Number));
     }
 
     @Override
@@ -97,10 +98,10 @@ public class Conversation extends AppCompatActivity implements View.OnClickListe
 
                     @SuppressLint("SimpleDateFormat")
                     String timeStamp = new SimpleDateFormat("dd.MM.yyyy.HH.mm.ss").format(new Date());
-                    Message message = new Message(timeStamp, Name, text, "r", Number);
+                    Message message = new Message(timeStamp, Name, text, "r", Number,"0");
                     db.addMessage(message);
                     addIndex(message, db);
-                    chatAdapter.setMyMessages(db.getAllChats(Name));
+                    chatAdapter.setMyMessages(db.getAllChats(Number));
                     Intent sendIntent = new Intent("android.intent.action.MAIN");
                     sendIntent.setAction(Intent.ACTION_SEND);
                     sendIntent.setType("text/plain");
@@ -118,7 +119,7 @@ public class Conversation extends AppCompatActivity implements View.OnClickListe
     }
 
     private void addIndex(Message message, DBHelper db) {
-        db.deleteIndexIfExists(message.getName());
+        db.deleteIndexIfExists(message.getNumber());
         db.addIndex(message);
     }
 
@@ -136,7 +137,8 @@ public class Conversation extends AppCompatActivity implements View.OnClickListe
         @Override
         public void onReceive(Context arg0, Intent arg1) {
             if (chatAdapter != null)
-                chatAdapter.setMyMessages(db.getAllChats(Name));
+                chatAdapter.setMyMessages(db.getAllChats(Number));
+            db.clearCount(Number);
         }
     }
 }

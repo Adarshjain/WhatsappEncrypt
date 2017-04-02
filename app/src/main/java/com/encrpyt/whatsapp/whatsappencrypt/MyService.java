@@ -15,51 +15,56 @@ import com.mobapphome.mahencryptorlib.MAHEncryptor;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MyService extends NotificationListenerService {
 
     final static String CONVERSE = "converse";
     final static String INDEX = "index";
+    final static String TRIM_REGEX = "\\([0-9]+\\h(messages)\\)";
+    final static String TAG = "MyService";
 
     @Override
     public void onNotificationPosted(StatusBarNotification sbn) {
         DBHelper db = new DBHelper(getApplication());
         String pack = sbn.getPackageName();
         if (pack.equals("com.whatsapp")) {
-            String ticker = (sbn.getNotification().tickerText != null) ? sbn.getNotification().tickerText.toString() : "";
             Bundle extras = sbn.getNotification().extras;
-            String Name = extras.getString("android.text");
-            String Chat = (extras.getCharSequence("android.text") != null) ? "" + extras.getCharSequence("android.text") : "";
-            if (!(Name.contains("(") && Name.contains("messages") && Name.contains(")"))) {
-                if (ticker.contains("Message from")) {
-                    Chat = Name;
-                    Name = ticker.substring(13);
-                }
+            String Name = extras.getString("android.title");
+            String Chat = extras.getString("android.text");
+            Long PostTime = sbn.getPostTime();
+            Name = trim(Name, TRIM_REGEX); //trimming extra "(2 messages)"
+            if (Name.charAt(Name.length() - 3) == ':') {// Remove ":" from Name
+                Name = Name.substring(0, Name.length() - 3);
+            }
+            String Number = getPhoneNumber(Name, getApplicationContext()); //Get phone number from contact using Name
+            Number = Number.replaceAll(" ", "");
+            try {//Check if "Chat" contains encrypted text or not - if yes continue else return
+                MAHEncryptor mahEncryptor = MAHEncryptor.newInstance("This is sample SecretKeyPhrase");
+                mahEncryptor.decode(Chat);
+            } catch (Exception e) {
+                return;
+            }
+            try {//Check if "Name" contains encrypted text or not - if yes return else continue
+                MAHEncryptor mahEncryptor = MAHEncryptor.newInstance("This is sample SecretKeyPhrase");
+                mahEncryptor.decode(Name);
+                return;
+            } catch (Exception ignored) {
+            }
+            if (!Objects.equals(Number, Name)) {
+                if (Number.length() < 11)
+                    Number = "91" + Number;
+                String Count = db.getCount(Number);
                 try {
-                    MAHEncryptor mahEncryptor = MAHEncryptor.newInstance("This is sample SecretKeyPhrase");
-                    mahEncryptor.decode(Chat);
-                } catch (Exception e) {
-                    return;
-                }
-                try {
-                    MAHEncryptor mahEncryptor = MAHEncryptor.newInstance("This is sample SecretKeyPhrase");
-                    mahEncryptor.decode(Name);
-                    return;
-                } catch (Exception ignored) {
-                }
-                if (Name.charAt(Name.length() - 3) == ':') {
-                    Name = Name.substring(0, Name.length() - 3);
-                }
-                try {
-                    MAHEncryptor mahEncryptor = MAHEncryptor.newInstance("This is sample SecretKeyPhrase");
-                    mahEncryptor.decode(Chat);
-
                     @SuppressLint("SimpleDateFormat")
-                    String timeStamp = new SimpleDateFormat("dd.MM.yyyy HH.mm.ss").format(new Date());
-                    String number = getPhoneNumber(Name, getApplicationContext());
-                    Message message = new Message(timeStamp, Name, Chat, "l", number);
-                    addMessage(message, db);
-                    addIndex(message, db);
+                    String timeStamp = new SimpleDateFormat("dd.MM.yyyy HH.mm.ss").format(new Date(PostTime));
+                    Message message = new Message(timeStamp, Name, Chat, "l", Number, Count);
+                    if (!db.isOld(message.getNumber(), message.getTime())) {
+                        addMessage(message, db);
+                        addIndex(message, db);
+                    }
                 } catch (Exception ignored) {
                     Log.e("Service Err", ignored.toString());
                 }
@@ -76,7 +81,7 @@ public class MyService extends NotificationListenerService {
     }
 
     private void addIndex(Message message, DBHelper db) {
-        db.deleteIndexIfExists(message.getName());
+        db.deleteIndexIfExists(message.getNumber());
         db.addIndex(message);
 
         IndexAdapter indexAdapter = new IndexAdapter(getApplicationContext());
@@ -101,5 +106,15 @@ public class MyService extends NotificationListenerService {
         if (ret == null)
             ret = name;
         return ret;
+    }
+
+    public String trim(String text, String regex) {
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(text);
+        // Check all occurrences
+        while (matcher.find()) {
+            text = text.substring(0, matcher.start());
+        }
+        return text.trim();
     }
 }

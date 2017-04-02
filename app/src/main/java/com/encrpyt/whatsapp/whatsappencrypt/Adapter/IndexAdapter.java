@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.encrpyt.whatsapp.whatsappencrypt.Conversation;
@@ -52,6 +53,10 @@ public class IndexAdapter extends RecyclerView.Adapter<IndexAdapter.IndexViewHol
         } catch (Exception e) {
             Log.e("Index Adapter", e.toString());
         }
+        if (Integer.parseInt(message.getCount()) > 0) {
+            holder.CountParent.setVisibility(View.VISIBLE);
+            holder.Count.setText(message.getCount());
+        } else holder.CountParent.setVisibility(View.GONE);
         holder.Hold.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -70,16 +75,18 @@ public class IndexAdapter extends RecyclerView.Adapter<IndexAdapter.IndexViewHol
 
     static class IndexViewHolder extends RecyclerView.ViewHolder {
 
-        TextView Name, Chat;
+        TextView Name, Chat, Count;
         View divider;
-        LinearLayout Hold;
+        RelativeLayout Hold,CountParent;
 
         IndexViewHolder(View itemView) {
             super(itemView);
             Name = (TextView) itemView.findViewById(R.id.index_name);
             Chat = (TextView) itemView.findViewById(R.id.index_chat);
+            Count = (TextView) itemView.findViewById(R.id.count);
             divider = itemView.findViewById(R.id.divider);
-            Hold = (LinearLayout) itemView.findViewById(R.id.hold);
+            Hold = (RelativeLayout) itemView.findViewById(R.id.hold);
+            CountParent = (RelativeLayout) itemView.findViewById(R.id.count_parent);
         }
     }
 }

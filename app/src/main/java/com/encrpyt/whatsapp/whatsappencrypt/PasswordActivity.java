@@ -176,14 +176,10 @@ public class PasswordActivity extends AppCompatActivity {
     @Override
     protected void onPostResume() {
         super.onPostResume();
-        if (!getPermission()) {
-            Toast.makeText(getApplicationContext(), "Please Grant Permission", Toast.LENGTH_SHORT).show();
+        if (!getNotified()) {
+            Toast.makeText(getApplicationContext(), "Please grant Notification Access", Toast.LENGTH_SHORT).show();
         } else {
-            if (!getNotified()) {
-                Toast.makeText(getApplicationContext(), "Please grant Notification Access", Toast.LENGTH_SHORT).show();
-            } else {
-                Perm.setVisibility(View.GONE);
-            }
+            Perm.setVisibility(View.GONE);
         }
     }
 

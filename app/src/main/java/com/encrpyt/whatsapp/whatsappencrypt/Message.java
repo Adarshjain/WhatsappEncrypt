@@ -1,14 +1,15 @@
 package com.encrpyt.whatsapp.whatsappencrypt;
 
 public class Message {
-    private String Name, Chat, Time, Direction, Number;
+    private String Name, Chat, Time, Direction, Number, Count;
 
-    public Message(String time, String name, String chat, String direction, String number) {
+    public Message(String time, String name, String chat, String direction, String number,String count) {
         this.Name = name;
         this.Chat = chat;
         this.Time = time;
         this.Direction = direction;
         this.Number = number;
+        this.Count = count;
     }
 
     public String getName() {
@@ -29,5 +30,9 @@ public class Message {
 
     public String getNumber() {
         return Number;
+    }
+
+    public String getCount() {
+        return Count;
     }
 }
