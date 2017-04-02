@@ -49,6 +49,7 @@ public class IndexAdapter extends RecyclerView.Adapter<IndexAdapter.IndexViewHol
         try {
             MAHEncryptor mahEncryptor = MAHEncryptor.newInstance("This is sample SecretKeyPhrase");
             Chat = mahEncryptor.decode(Chat);
+            Chat = Chat.replaceAll("\n"," ");
             holder.Chat.setText(Chat);
         } catch (Exception e) {
             Log.e("Index Adapter", e.toString());

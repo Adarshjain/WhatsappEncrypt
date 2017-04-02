@@ -32,7 +32,6 @@
         <activity
             android:name=".Conversation"
             android:label="@string/title_activity_conversation"
-            android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".Contacts"
@@ -46,8 +45,10 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".MainActivity"
-            android:label="Whatsapp Encryption"/>
+        <activity
+            android:name=".MainActivity"
+            android:windowSoftInputMode="adjustPan"
+            android:label="Whatsapp Encryption" />
     </application>
 
 </manifest>

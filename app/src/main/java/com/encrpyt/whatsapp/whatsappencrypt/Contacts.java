@@ -31,6 +31,7 @@ public class Contacts extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
+
         li = (ListView) findViewById(R.id.all_list);
 
         new LoadContactsAsync().execute();

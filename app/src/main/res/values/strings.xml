@@ -3,4 +3,7 @@
     <string name="title_activity_conversation">Conversation</string>
     <string name="go">GO</string>
     <string name="grant_permissions">Grant Permissions</string>
+    <string name="decrypt">Decrypt</string>
+    <string name="decrypt_amp_add"><![CDATA[Decrypt & add]]></string>
+    <string name="close">Close</string>
 </resources>

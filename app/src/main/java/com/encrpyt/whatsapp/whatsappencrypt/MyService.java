@@ -9,6 +9,7 @@ import android.provider.ContactsContract;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.encrpyt.whatsapp.whatsappencrypt.Adapter.IndexAdapter;
 import com.mobapphome.mahencryptorlib.MAHEncryptor;
@@ -36,11 +37,16 @@ public class MyService extends NotificationListenerService {
             String Chat = extras.getString("android.text");
             Long PostTime = sbn.getPostTime();
             Name = trim(Name, TRIM_REGEX); //trimming extra "(2 messages)"
-            if (Name.charAt(Name.length() - 3) == ':') {// Remove ":" from Name
+            if (Name.charAt(Name.length() - 2) == ':') {// Remove ":" from Name
                 Name = Name.substring(0, Name.length() - 3);
             }
             String Number = getPhoneNumber(Name, getApplicationContext()); //Get phone number from contact using Name
-            Number = Number.replaceAll(" ", "");
+            try {
+                Number = Number.replaceAll(" ", "");
+                Number = Number.replace("+", "");
+            } catch (NullPointerException npe) {
+                Toast.makeText(getApplicationContext(), "NPE", Toast.LENGTH_SHORT).show();
+            }
             try {//Check if "Chat" contains encrypted text or not - if yes continue else return
                 MAHEncryptor mahEncryptor = MAHEncryptor.newInstance("This is sample SecretKeyPhrase");
                 mahEncryptor.decode(Chat);
