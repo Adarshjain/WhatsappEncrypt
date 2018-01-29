@@ -6,4 +6,6 @@
     <string name="decrypt">Decrypt</string>
     <string name="decrypt_amp_add"><![CDATA[Decrypt & add]]></string>
     <string name="close">Close</string>
+    <string name="save">Save</string>
+    <string name="whatsapp_number">WhatsApp Number</string>
 </resources>

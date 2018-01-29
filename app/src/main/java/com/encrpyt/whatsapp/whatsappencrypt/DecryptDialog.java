@@ -17,7 +17,7 @@ public class DecryptDialog extends Dialog implements View.OnClickListener {
     private EditText Text;
     private TextView Decrypted;
 
-    public DecryptDialog(Activity a) {
+    DecryptDialog(Activity a) {
         super(a);
         this.c = a;
     }

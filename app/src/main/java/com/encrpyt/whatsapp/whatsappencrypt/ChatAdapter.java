@@ -10,8 +10,6 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.mobapphome.mahencryptorlib.MAHEncryptor;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,8 +47,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolderChat
             holder.Chat.setLayoutParams(params);
         }
         try {
-            MAHEncryptor mahEncryptor = MAHEncryptor.newInstance("This is sample SecretKeyPhrase");
-            Chat = mahEncryptor.decode(Chat);
+//            MAHEncryptor mahEncryptor = MAHEncryptor.newInstance("This is sample SecretKeyPhrase");
+//            Chat = mahEncryptor.decode(Chat);
             holder.Chat.setText(Chat);
         } catch (Exception e) {
             Log.e("ChatAdapter", e.toString());

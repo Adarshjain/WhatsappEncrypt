@@ -3,16 +3,15 @@ package com.encrpyt.whatsapp.whatsappencrypt;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.encrpyt.whatsapp.whatsappencrypt.Adapter.IndexAdapter;
-import com.mobapphome.mahencryptorlib.MAHEncryptor;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -32,41 +31,58 @@ public class MyService extends NotificationListenerService {
         DBHelper db = new DBHelper(getApplication());
         String pack = sbn.getPackageName();
         if (pack.equals("com.whatsapp")) {
+            SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("Data", Context.MODE_PRIVATE);
+            String MyNumber = sharedPref.getString("number", "1234");
             Bundle extras = sbn.getNotification().extras;
             String Name = extras.getString("android.title");
             String Chat = extras.getString("android.text");
+            String Key = sbn.getKey();
+            String Number = getNumber(Key);
+            if (Number.equals("null"))
+                return;
+            Log.e("Service", Key);
             Long PostTime = sbn.getPostTime();
+            String decrypted;
+            if (Name != null && Name.matches(TRIM_REGEX)) return;
             Name = trim(Name, TRIM_REGEX); //trimming extra "(2 messages)"
             if (Name.charAt(Name.length() - 2) == ':') {// Remove ":" from Name
                 Name = Name.substring(0, Name.length() - 3);
             }
-            String Number = getPhoneNumber(Name, getApplicationContext()); //Get phone number from contact using Name
-            try {
-                Number = Number.replaceAll(" ", "");
-                Number = Number.replace("+", "");
-            } catch (NullPointerException npe) {
-                Toast.makeText(getApplicationContext(), "NPE", Toast.LENGTH_SHORT).show();
-            }
+//            String Number = getPhoneNumber(Name, getApplicationContext()); //Get phone number from contact using Name
+//            try {
+//                Number = Number.replaceAll(" ", "");
+//                Number = Number.replace("+", "");
+//            } catch (NullPointerException npe) {
+//                Toast.makeText(getApplicationContext(), "NPE", Toast.LENGTH_SHORT).show();
+//            }
             try {//Check if "Chat" contains encrypted text or not - if yes continue else return
-                MAHEncryptor mahEncryptor = MAHEncryptor.newInstance("This is sample SecretKeyPhrase");
-                mahEncryptor.decode(Chat);
+                Crypt crypt = new Crypt(Number, MyNumber);
+                decrypted = crypt.decrypt(Chat + "\n");
+                Log.e("Service decchat", decrypted);
+//                MAHEncryptor mahEncryptor = MAHEncryptor.newInstance("This is sample SecretKeyPhrase");
+//                mahEncryptor.decode(Chat);
             } catch (Exception e) {
+                Log.e("Service dec", "Error Chat" + e);
                 return;
             }
             try {//Check if "Name" contains encrypted text or not - if yes return else continue
-                MAHEncryptor mahEncryptor = MAHEncryptor.newInstance("This is sample SecretKeyPhrase");
-                mahEncryptor.decode(Name);
+//                MAHEncryptor mahEncryptor = MAHEncryptor.newInstance("This is sample SecretKeyPhrase");
+//                mahEncryptor.decode(Name);
+                Crypt crypt = new Crypt(Number, MyNumber);
+                crypt.decrypt(Name);
+                Log.e("Service decname", decrypted);
                 return;
             } catch (Exception ignored) {
+                Log.e("Service dec", "Error Name");
             }
+            Log.e("Service dec", decrypted);
             if (!Objects.equals(Number, Name)) {
-                if (Number.length() < 11)
-                    Number = "91" + Number;
+                if (Number.length() < 11) Number = "91" + Number;
                 String Count = db.getCount(Number);
                 try {
                     @SuppressLint("SimpleDateFormat")
                     String timeStamp = new SimpleDateFormat("dd.MM.yyyy HH.mm.ss").format(new Date(PostTime));
-                    Message message = new Message(timeStamp, Name, Chat, "l", Number, Count);
+                    Message message = new Message(timeStamp, Name, decrypted, "l", Number, Count);
                     if (!db.isOld(message.getNumber(), message.getTime())) {
                         addMessage(message, db);
                         addIndex(message, db);
@@ -76,6 +92,11 @@ public class MyService extends NotificationListenerService {
                 }
             }
         }
+    }
+
+    private String getNumber(String key) {
+        String num[] = key.split("@");
+        return num[1].equals("s.whatsapp.net") ? num[0].substring(num[0].length() - 10) : "null";
     }
 
     private void addMessage(Message message, DBHelper db) {

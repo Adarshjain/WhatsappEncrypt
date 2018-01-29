@@ -5,17 +5,17 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
-
-import com.mobapphome.mahencryptorlib.MAHEncryptor;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -28,6 +28,7 @@ public class Conversation extends AppCompatActivity implements View.OnClickListe
     private String Name, Number;
     private EditText Message;
     private ChatAdapter chatAdapter;
+
 
     @Override
     protected void onStart() {
@@ -48,18 +49,27 @@ public class Conversation extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation);
-
+//        final SharedPreferences sharedPref = getSharedPreferences("Data",Context.MODE_PRIVATE);
+//        final String Sender = sharedPref.getString("number", "4567");
+//        Log.e("Conversation Class",Sender);
         Bundle b = getIntent().getExtras();
-        Name = b.getString("name");
-        Number = b.getString("number");
-        try {
+        if (b != null) {
+            Name = b.getString("name");
+            Number = b.getString("number");
+        } else {
+            Toast.makeText(getApplicationContext(), "Name and number not received!", Toast.LENGTH_SHORT).show();
+            finish();
+        }
+//        try {
+        if (Number != null) {
             Number = Number.replaceAll(" ", "");
             Number = Number.replace("+", "");
-        } catch (NullPointerException npe) {
-            Toast.makeText(getApplicationContext(), "NPE", Toast.LENGTH_SHORT).show();
+            if (Number.length() < 11)
+                Number = "91" + Number;
         }
-        if (Number.length() < 11)
-            Number = "91" + Number;
+//        } catch (NullPointerException npe) {
+//            Toast.makeText(getApplicationContext(), "NPE", Toast.LENGTH_SHORT).show();
+//        }
 
         db.clearCount(Number);
         Toolbar toolbar;
@@ -92,20 +102,30 @@ public class Conversation extends AppCompatActivity implements View.OnClickListe
                 try {
                     String text = Message.getText().toString();
                     Message.setText("");
-                    MAHEncryptor mahEncryptor = MAHEncryptor.newInstance("This is sample SecretKeyPhrase");
-                    text = mahEncryptor.encode(text);
+                    SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("Data",Context.MODE_PRIVATE);
+                    String Sender = sharedPref.getString("number",null);
+                    if (Sender == null) {
+                        Log.e("Null","Null");
+                        return;
+                    }
+                    Log.e("Conversation Class",Sender);
+                    String receiver = Number.length() <= 10 ? Number : Number.substring(Number.length() - 10);
+                    Crypt crypt = new Crypt(Sender,receiver);
+                    String text1 = crypt.encrypt(text);
+//                    MAHEncryptor mahEncryptor = MAHEncryptor.newInstance("This is sample SecretKeyPhrase");
+//                    text = mahEncryptor.encode(text);
 
 
                     @SuppressLint("SimpleDateFormat")
                     String timeStamp = new SimpleDateFormat("dd.MM.yyyy.HH.mm.ss").format(new Date());
-                    Message message = new Message(timeStamp, Name, text, "r", Number,"0");
+                    Message message = new Message(timeStamp, Name, text, "r", Number, "0");
                     db.addMessage(message);
                     addIndex(message, db);
                     chatAdapter.setMyMessages(db.getAllChats(Number));
                     Intent sendIntent = new Intent("android.intent.action.MAIN");
                     sendIntent.setAction(Intent.ACTION_SEND);
                     sendIntent.setType("text/plain");
-                    sendIntent.putExtra(Intent.EXTRA_TEXT, text);
+                    sendIntent.putExtra(Intent.EXTRA_TEXT, text1);
                     sendIntent.putExtra("jid", Number + "@s.whatsapp.net");
                     sendIntent.setPackage("com.whatsapp");
                     startActivity(sendIntent);

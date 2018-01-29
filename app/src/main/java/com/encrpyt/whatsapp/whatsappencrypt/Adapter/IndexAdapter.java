@@ -7,14 +7,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.encrpyt.whatsapp.whatsappencrypt.Conversation;
 import com.encrpyt.whatsapp.whatsappencrypt.Message;
 import com.encrpyt.whatsapp.whatsappencrypt.R;
-import com.mobapphome.mahencryptorlib.MAHEncryptor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,8 +45,8 @@ public class IndexAdapter extends RecyclerView.Adapter<IndexAdapter.IndexViewHol
         String Name = message.getName();
         holder.Name.setText(Name);
         try {
-            MAHEncryptor mahEncryptor = MAHEncryptor.newInstance("This is sample SecretKeyPhrase");
-            Chat = mahEncryptor.decode(Chat);
+//            MAHEncryptor mahEncryptor = MAHEncryptor.newInstance("This is sample SecretKeyPhrase");
+//            Chat = mahEncryptor.decode(Chat);
             Chat = Chat.replaceAll("\n"," ");
             holder.Chat.setText(Chat);
         } catch (Exception e) {

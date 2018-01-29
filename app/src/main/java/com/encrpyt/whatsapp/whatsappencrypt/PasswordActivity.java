@@ -2,7 +2,9 @@ package com.encrpyt.whatsapp.whatsappencrypt;
 
 import android.Manifest;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -12,26 +14,40 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.Objects;
+
 public class PasswordActivity extends AppCompatActivity {
 
-    EditText p1, p2, p3, p4;
+    EditText p1, p2, p3, p4, Number;
     TextView Perm;
+    Button saveNumber;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_password);
 
+        final LinearLayout NumberPrompt = (LinearLayout) findViewById(R.id.numberPrompt);
+
+        final SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("Data",Context.MODE_PRIVATE);
+        final String number = sharedPref.getString("number", "1234");
+        Log.e("Password",number);
+        if (!Objects.equals(number, "1234")) NumberPrompt.setVisibility(View.GONE);
 //        PackageManager p = getPackageManager();
 //        ComponentName componentName = new ComponentName(this, PasswordActivity.class); // activity which is first time open in manifiest file which is declare as <category android:name="android.intent.category.LAUNCHER" />
 //        p.setComponentEnabledSetting(componentName, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
 
         Perm = (TextView) findViewById(R.id.perm);
+        Number = (EditText) findViewById(R.id.number);
+        saveNumber = (Button) findViewById(R.id.saveNumber);
         Perm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -43,16 +59,27 @@ public class PasswordActivity extends AppCompatActivity {
             }
         });
 
+        saveNumber.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String num = Number.getText().toString();
+                if (Objects.equals(num, "")) {
+                    Toast.makeText(getApplicationContext(), "Please specify your current WhatsApp number!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (num.length() != 10) return;
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putString("number", num);
+                editor.apply();
+                NumberPrompt.setVisibility(View.GONE);
+
+            }
+        });
         Perm.setVisibility(View.VISIBLE);
 
         if (!getPermission()) {
             Toast.makeText(getApplicationContext(), "Please Grant Permission", Toast.LENGTH_SHORT).show();
-        } //else {
-//            if (!getNotified()) {
-//                Toast.makeText(getApplicationContext(), "Please grant Notification Access", Toast.LENGTH_LONG).show();
-//                startActivity(new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"));
-//            }
-//        }
+        }
         p1 = (EditText) findViewById(R.id.pass1);
         p2 = (EditText) findViewById(R.id.pass2);
         p3 = (EditText) findViewById(R.id.pass3);
@@ -131,6 +158,9 @@ public class PasswordActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (!getPermission()) {
+                    return;
+                } else if (NumberPrompt.getVisibility() == View.VISIBLE) {
+                    Toast.makeText(getApplicationContext(), "Please specify your current WhatsApp number!", Toast.LENGTH_SHORT).show();
                     return;
                 } else {
                     if (!getNotified()) {
