@@ -14,7 +14,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -39,7 +38,7 @@ public class PasswordActivity extends AppCompatActivity {
 
         final SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("Data",Context.MODE_PRIVATE);
         final String number = sharedPref.getString("number", "1234");
-        Log.e("Password",number);
+//        Log.e("Password",number);
         if (!Objects.equals(number, "1234")) NumberPrompt.setVisibility(View.GONE);
 //        PackageManager p = getPackageManager();
 //        ComponentName componentName = new ComponentName(this, PasswordActivity.class); // activity which is first time open in manifiest file which is declare as <category android:name="android.intent.category.LAUNCHER" />

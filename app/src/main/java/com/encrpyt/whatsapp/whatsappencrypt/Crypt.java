@@ -39,7 +39,7 @@ public class Crypt {
      */
     private byte[] getSHA256Key() throws NoSuchAlgorithmException, UnsupportedEncodingException {
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        Log.e("Key",Number1 + " " + Number2);
+        Log.e("Crypt Key",Number1 + " " + Number2);
         return digest.digest((Number1 + Number2).getBytes());
     }
 
@@ -56,7 +56,9 @@ public class Crypt {
     public String encrypt(String plainText) throws Exception {
 
         String OTPCrypted = OTPEncrypt(plainText);
-        return "#" + AESEncrypt(OTPCrypted) + "#";
+        String temp =  "#" + AESEncrypt(OTPCrypted) + "#";
+        Log.e("Crypt encrypt final",temp);
+        return temp;
     }
 
     /**
@@ -65,10 +67,13 @@ public class Crypt {
      * @throws Exception
      */
     public String decrypt(String cipherText) throws Exception {
+        Log.e("Crypt non strip",cipherText);
         cipherText = cipherText.substring(1,cipherText.length()-1);
-        Log.e("Servoce",cipherText);
+        Log.e("Crypt strip",cipherText);
         String AESDecrypted = AESDecrypt(cipherText);
-        return OTPDecrypt(AESDecrypted);
+        String temp =  OTPDecrypt(AESDecrypted);
+        Log.e("Crypt Decrypted final",temp);
+        return temp;
     }
 
     /**
