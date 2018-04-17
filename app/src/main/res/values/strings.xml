@@ -8,4 +8,8 @@
     <string name="close">Close</string>
     <string name="save">Save</string>
     <string name="whatsapp_number">WhatsApp Number</string>
+    <string name="title_activity_main2">Main2Activity</string>
+    <string name="encrypt_file">Encrypt Image</string>
+    <string name="decrypt_file">Decrypt Image</string>
+    <string name="decrypted_image">Decrypted Image</string>
 </resources>

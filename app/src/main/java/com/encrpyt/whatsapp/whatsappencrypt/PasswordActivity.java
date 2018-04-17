@@ -57,6 +57,7 @@ public class PasswordActivity extends AppCompatActivity {
                 }
             }
         });
+//        startActivity(new Intent(this,Main2Activity.class));
 
         saveNumber.setOnClickListener(new View.OnClickListener() {
             @Override

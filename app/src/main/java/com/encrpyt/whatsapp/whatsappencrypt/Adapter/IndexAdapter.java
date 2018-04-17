@@ -62,6 +62,7 @@ public class IndexAdapter extends RecyclerView.Adapter<IndexAdapter.IndexViewHol
                 Intent converse = new Intent(con, Conversation.class);
                 converse.putExtra("name", message.getName());
                 converse.putExtra("number", message.getNumber());
+                converse.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 con.startActivity(converse);
             }
         });
